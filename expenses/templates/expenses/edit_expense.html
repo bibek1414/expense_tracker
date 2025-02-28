@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6">Edit Expense</h2>
+    
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-gray-700">Title</label>
+            <input type="text" name="title" value="{{ expense.title }}" required
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+        </div>
+        
+        <div>
+            <label class="block text-gray-700">Amount</label>
+            <input type="number" name="amount" value="{{ expense.amount }}" step="0.01" required
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+        </div>
+        
+        <div>
+            <label class="block text-gray-700">Category</label>
+            <select name="category" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                <option value="food" {% if expense.category == 'food' %}selected{% endif %}>Food</option>
+                <option value="transportation" {% if expense.category == 'transportation' %}selected{% endif %}>Transportation</option>
+                <option value="entertainment" {% if expense.category == 'entertainment' %}selected{% endif %}>Entertainment</option>
+                <option value="bills" {% if expense.category == 'bills' %}selected{% endif %}>Bills</option>
+                <option value="other" {% if expense.category == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-gray-700">Date</label>
+            <input type="date" name="date" value="{{ expense.date|date:'Y-m-d' }}" required
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+        </div>
+        
+        <div>
+            <label class="block text-gray-700">Description</label>
+            <textarea name="description" rows="3"
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">{{ expense.description }}</textarea>
+        </div>
+        
+        <div class="flex justify-end space-x-2">
+            <a href="{% url 'expenses:expense_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                Cancel
+            </a>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Update Expense
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
