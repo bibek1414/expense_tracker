@@ -1,0 +1,11 @@
+# version: '3'
+
+# services:
+#   django:
+#     build: .
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - .:/app  # Mount project folder inside the container
+#     restart: always  # Restart container if it crashes
+#     command: ["watchmedo", "auto-restart", "--directory=.", "--pattern=*.py", "--recursive", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]

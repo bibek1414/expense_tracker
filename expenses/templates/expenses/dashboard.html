@@ -1,0 +1,344 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}Dashboard - Expense Tracker{% endblock %}
+
+{% block content %}
+<!-- Start of User Profile and Balance Section -->
+<div class="container mx-auto px-4 py-6">
+    <!-- User Profile and Balance Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-700">Dashboard</h1>
+            <p class="text-gray-500">{{ current_date|date:"F j, Y" }}</p>
+        </div>
+        <div>
+            <form method="get" action="{% url 'expenses:dashboard' %}" class="flex items-center space-x-2">
+                <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <span class="text-gray-500">to</span>
+                <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Filter</button>
+            </form>
+        </div>
+    </div>
+    <!-- End of User Profile and Balance Section -->
+
+    <!-- Start of Time Period Selector -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'expenses:dashboard' %}?period=daily" class="px-4 py-2 rounded-md {% if period == 'daily' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                <i class="fas fa-calendar-day mr-1"></i> Daily
+            </a>
+            <a href="{% url 'expenses:dashboard' %}?period=weekly" class="px-4 py-2 rounded-md {% if period == 'weekly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                <i class="fas fa-calendar-week mr-1"></i> Weekly
+            </a>
+            <a href="{% url 'expenses:dashboard' %}?period=monthly" class="px-4 py-2 rounded-md {% if period == 'monthly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                <i class="fas fa-calendar-alt mr-1"></i> Monthly
+            </a>
+            <a href="{% url 'expenses:dashboard' %}?period=yearly" class="px-4 py-2 rounded-md {% if period == 'yearly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                <i class="fas fa-calendar mr-1"></i> Yearly
+            </a>
+            <a href="{% url 'expenses:dashboard' %}?period=all" class="px-4 py-2 rounded-md {% if period == 'all' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                <i class="fas fa-infinity mr-1"></i> All Time
+            </a>
+        </div>
+        <!-- End of Time Period Selector -->
+
+        <!-- Date Controls -->
+        <div class="mt-4 flex items-center justify-between">
+            <a href="?period={{ period }}&date={{ prev_date|date:'Y-m-d' }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            <h2 class="text-lg font-bold text-blue-700">
+                {% if period == 'daily' %}
+                    {{ current_date|date:"F j, Y" }}
+                {% elif period == 'weekly' %}
+                    Week of {{ current_date|date:"F j, Y" }}
+                {% elif period == 'monthly' %}
+                    {{ current_date|date:"F Y" }}
+                {% elif period == 'yearly' %}
+                    {{ current_date|date:"Y" }}
+                {% else %}
+                    All Time Expenses
+                {% endif %}
+            </h2>
+            <a href="?period={{ period }}&date={{ next_date|date:'Y-m-d' }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 {% if period == 'all' or next_date > today %}opacity-50 pointer-events-none{% endif %}">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+    <!-- End of Date Controls -->
+
+ <!-- Start of Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <!-- Income Card -->
+    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
+        <div class="flex justify-between items-center">
+            <h3 class="text-gray-500 font-medium">Income</h3>
+            <span class="p-2 bg-green-100 rounded-full text-green-700">
+                <i class="fas fa-arrow-up"></i>
+            </span>
+        </div>
+        <p class="text-2xl font-bold mt-2 text-green-600">${{ total_income|floatformat:2 }}</p>
+    </div>
+
+    <!-- Expenses Card -->
+    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500">
+        <div class="flex justify-between items-center">
+            <h3 class="text-gray-500 font-medium">Expenses</h3>
+            <span class="p-2 bg-red-100 rounded-full text-red-700">
+                <i class="fas fa-arrow-down"></i>
+            </span>
+        </div>
+        <p class="text-2xl font-bold mt-2 text-red-600">${{ total_expenses|floatformat:2 }}</p>
+        {% if prev_total_expenses %}
+            <div class="mt-2 text-sm {% if total_expenses > prev_total_expenses %}text-red-500{% else %}text-green-500{% endif %}">
+                {% if total_expenses > prev_total_expenses %}
+                    <i class="fas fa-arrow-up"></i> {{ percent_change_expenses|floatformat:1 }}% from previous period
+                {% elif total_expenses < prev_total_expenses %}
+                    <i class="fas fa-arrow-down"></i> {{ percent_change_expenses|floatformat:1 }}% from previous period
+                {% else %}
+                    <i class="fas fa-equals"></i> No change from previous period
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Balance Card -->
+    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+        <div class="flex justify-between items-center">
+            <h3 class="text-gray-500 font-medium">Balance</h3>
+            <span class="p-2 bg-purple-100 rounded-full text-purple-700">
+                <i class="fas fa-wallet"></i>
+            </span>
+        </div>
+        <p class="text-2xl font-bold mt-2 text-purple-600">${{ balance|floatformat:2 }}</p>
+    </div>
+
+    <!-- Transactions Card -->
+    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-amber-500">
+        <div class="flex justify-between items-center">
+            <h3 class="text-gray-500 font-medium">Transactions</h3>
+            <span class="p-2 bg-amber-100 rounded-full text-amber-700">
+                <i class="fas fa-exchange-alt"></i>
+            </span>
+        </div>
+        <p class="text-2xl font-bold mt-2 text-amber-600">{{ transaction_count }}</p>
+    </div>
+</div>
+<!-- End of Summary Cards -->
+
+
+    <!-- Start of Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Expenses by Category Chart -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Expenses by Category</h2>
+            <canvas id="categoryChart" height="240"></canvas>
+        </div>
+
+        <!-- Income vs Expenses Bar Chart -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Income vs Expenses</h2>
+            <canvas id="incomeExpensesHistogram" height="240"></canvas>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById("incomeExpensesHistogram").getContext("2d");
+    
+            const income = {{ total_income|floatformat:2 }};
+            const expenses = {{ total_expenses|floatformat:2 }};
+    
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ["Income", "Expenses"],
+                    datasets: [{
+                        label: "Amount",
+                        data: [income, expenses],
+                        backgroundColor: ["#4CAF50", "#F44336"], // Green for income, Red for expenses
+                        borderColor: ["#388E3C", "#D32F2F"],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+        
+    <!-- Start of Recent Transactions -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-blue-700">Recent Transactions</h2>
+            <a href="{% url 'expenses:add_expense' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center">
+                <i class="fas fa-plus mr-1"></i> Add New
+            </a>
+        </div>
+        
+        {% if transactions %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for transaction in transactions|slice:":5" %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ transaction.date|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                {{ transaction.title }}
+                                {% if transaction.description %}
+                                <p class="text-xs text-gray-500">{{ transaction.description }}</p>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full" style="background-color: {{ transaction.category.color }}20; color: {{ transaction.category.color }}">
+                                    {{ transaction.category.name }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    {% if transaction.type == 'income' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                    {{ transaction.get_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${{ transaction.amount|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{% url 'expenses:edit_expense' transaction.id %}" class="text-blue-600 hover:text-blue-800 mr-3">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" onclick="confirmDelete({{ transaction.id }})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-8 text-center">
+                <div class="inline-block p-4 rounded-full bg-gray-100 text-gray-400 mb-4">
+                    <i class="fas fa-receipt text-4xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">No transactions found</h3>
+                <p class="text-gray-500 mb-4">There are no transactions recorded for this time period.</p>
+                <a href="{% url 'expenses:add_expense' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                    <i class="fas fa-plus mr-2"></i> Add your first transaction
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Floating Action Button (FAB) -->
+<div class="fixed bottom-8 right-8">
+    <a href="{% url 'expenses:add_expense' %}" class="p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-transform duration-200 hover:scale-110">
+        <i class="fas fa-plus text-2xl"></i>
+    </a>
+</div>
+
+<!-- Charts JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to get random color - add this in case it's not defined elsewhere
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Category Chart
+        const categoryChartData = {{ category_chart_data|safe }};
+        const categoryLabels = categoryChartData.map(cat => cat.name);
+        const categoryValues = categoryChartData.map(cat => cat.value);
+        const categoryColors = categoryChartData.map(cat => cat.color || getRandomColor());
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+       
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: categoryColors,
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                aspectRatio: 1.5,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 10,
+                            padding: 10,
+                        }
+                    }
+                },
+                
+            }
+
+        });
+    });
+
+
+
+</script>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+        <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <p class="mb-4">Are you sure you want to delete this expense?</p>
+            <div class="flex justify-end">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to handle delete confirmation
+    function confirmDelete(expenseId) {
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = `/delete/${expenseId}/`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}
