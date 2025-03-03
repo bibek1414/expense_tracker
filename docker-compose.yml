@@ -5,26 +5,26 @@ services:
     image: postgres:13
     container_name: db
     environment:
-      POSTGRES_USER: bibek          # The PostgreSQL username
-      POSTGRES_PASSWORD: bibek      # The PostgreSQL password
-      POSTGRES_DB: databasename     # The PostgreSQL database name
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist the database data
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"  # Expose the PostgreSQL port
+      - "5432:5432"
 
   web:
-    build: .  # This tells Docker Compose to build the image using the Dockerfile in the current directory
+    build: .
     container_name: web
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"  # Run migrations and start the server
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app  # Mount the current directory to /app in the container
+      - .:/app
     ports:
-      - "8000:8000"  # Expose Django's default port
+      - "8000:8000"
     depends_on:
-      - db  # Wait for the database container to be ready before starting Django
+      - db
     environment:
-      - DATABASE_URL=postgres://bibek:bibek@db:5432/databasename  # Database URL for Django
+      - DATABASE_URL=${DATABASE_URL}
 
 volumes:
-  postgres_data:  # Named volume for storing database data
+  postgres_data:
