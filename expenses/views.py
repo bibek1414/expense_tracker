@@ -9,6 +9,12 @@ import json
 from datetime import timedelta
 from collections import defaultdict
 from decimal import Decimal
+from django.core.serializers.json import DjangoJSONEncoder
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from datetime import date
+from django.contrib.auth.forms import UserCreationForm
 
 @login_required
 def transactions(request):
@@ -225,94 +231,102 @@ def dashboard(request):
     return render(request, 'expenses/dashboard.html', context)
 @login_required
 def add_expense(request):
+    """View to add a new expense or income"""
+    # Calculate balance
+    expenses = Expense.objects.filter(user=request.user)
+    total_income = expenses.filter(type='income').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_expenses = expenses.filter(type='expense').aggregate(Sum('amount'))['amount__sum'] or 0
+    balance = total_income - total_expenses
+
     if request.method == 'POST':
+        # Extract form data
         title = request.POST.get('title')
         amount = request.POST.get('amount')
-        date = request.POST.get('date')
         category_id = request.POST.get('category')
-        description = request.POST.get('description', '')
-        type = request.POST.get('type')
-
-        if not all([title, amount, date, category_id, type]):
-            messages.error(request, 'Please fill in all required fields.')
-            return redirect('expenses:add_expense')
-
-        try:
-            amount = Decimal(amount)
-            if type == 'expense':
-                amount = -amount  # Subtract for expenses
-            category = get_object_or_404(Category, id=category_id)
-            Expense.objects.create(
-                user=request.user,
-                title=title,
-                amount=amount,
-                date=date,
-                category=category,
-                description=description,
-                type=type
-            )
-            messages.success(request, 'Transaction added successfully!')
-            return redirect('expenses:dashboard')
-        except (ValueError, TypeError):
-            messages.error(request, 'Please enter a valid amount.')
-            return redirect('expenses:add_expense')
-
+        date_value = request.POST.get('date')
+        description = request.POST.get('description')
+        transaction_type = request.POST.get('type')
+        
+        # Create and save the expense/income
+        category = get_object_or_404(Category, id=category_id)
+        Expense.objects.create(
+            user=request.user,
+            title=title,
+            amount=amount,
+            category=category,
+            date=date_value,
+            description=description,
+            type=transaction_type
+        )
+        
+        # Redirect to dashboard or appropriate page
+        return HttpResponseRedirect(reverse('expenses:dashboard'))
+    
+    # For GET requests, prepare the form
     categories = Category.objects.all()
-    today = timezone.now().date().strftime('%Y-%m-%d')
+    categories_json = json.dumps(
+        [{'id': category.id, 'name': category.name, 'type': category.type} 
+         for category in categories],
+        cls=DjangoJSONEncoder
+    )
+    
     context = {
         'categories': categories,
-        'today': today
+        'categories_json': categories_json,
+        'today': date.today().strftime('%Y-%m-%d'),
+        'balance': balance,  
     }
+    
     return render(request, 'expenses/add_expense.html', context)
 
 @login_required
 def edit_expense(request, expense_id):
+    """View to edit an existing expense or income"""
     expense = get_object_or_404(Expense, id=expense_id, user=request.user)
-    
+
+    # Calculate balance
+    expenses = Expense.objects.filter(user=request.user)
+    total_income = expenses.filter(type='income').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_expenses = expenses.filter(type='expense').aggregate(Sum('amount'))['amount__sum'] or 0
+    balance = total_income - total_expenses
+
     if request.method == 'POST':
+        # Extract form data
         title = request.POST.get('title')
         amount = request.POST.get('amount')
-        date = request.POST.get('date')
         category_id = request.POST.get('category')
-        description = request.POST.get('description', '')
+        date_value = request.POST.get('date')
+        description = request.POST.get('description')
+        transaction_type = request.POST.get('type')
         
-        # Validate required fields
-        if not all([title, amount, date, category_id]):
-            messages.error(request, 'Please fill in all required fields.')
-            return redirect('expenses:edit_expense', expense_id=expense_id)
+        # Update the expense/income
+        expense.title = title
+        expense.amount = amount
+        expense.category = get_object_or_404(Category, id=category_id)
+        expense.date = date_value
+        expense.description = description
+        expense.type = transaction_type
+        expense.save()
         
-        try:
-            # Convert amount to Decimal
-            amount = Decimal(amount)
-            
-            # Get category
-            category = get_object_or_404(Category, id=category_id)
-            
-            # Update expense
-            expense.title = title
-            expense.amount = amount
-            expense.date = date
-            expense.category = category
-            expense.description = description
-            expense.save()
-            
-            messages.success(request, 'Expense updated successfully!')
-            return redirect('expenses:dashboard')
-            
-        except (ValueError, TypeError):
-            messages.error(request, 'Please enter a valid amount.')
-            return redirect('expenses:edit_expense', expense_id=expense_id)
+        # Redirect to dashboard or appropriate page
+        return HttpResponseRedirect(reverse('expenses:dashboard'))
     
-    # GET request
+    # For GET requests, prepare the form with existing data
     categories = Category.objects.all()
+    categories_json = json.dumps(
+        [{'id': category.id, 'name': category.name, 'type': category.type} 
+         for category in categories],
+        cls=DjangoJSONEncoder
+    )
     
     context = {
         'expense': expense,
-        'categories': categories
+        'categories': categories,
+        'categories_json': categories_json,
+        'balance': balance,  
     }
     
     return render(request, 'expenses/edit_expense.html', context)
-
 @login_required
 def delete_expense(request, expense_id):
     expense = get_object_or_404(Expense, id=expense_id, user=request.user)
@@ -390,3 +404,14 @@ def delete_category(request, category_id):
     
     return redirect('expenses:expense_categories')
 
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}! You can now log in.')
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

@@ -42,6 +42,10 @@
         <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition flex justify-center items-center">
             <i class="fas fa-sign-in-alt mr-2"></i> Login
         </button>
+        <a href="{% url 'expenses:register' %}" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition flex justify-center items-center">
+            <i class="fas fa-user-plus mr-2"></i> Register
+        </a>
+        
     </form>
 </div>
 {% endblock %}

@@ -1,55 +1,112 @@
-{% extends 'layout.html' %}
+    {% extends 'layout.html' %}
 
-{% block content %}
-<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">Edit Expense</h2>
-    
-    <form method="POST" class="space-y-4" onsubmit="return confirm('Are you sure you want to update this expense?');">
-        {% csrf_token %}
-        <div>
-            <label class="block text-gray-700">Title</label>
-            <input type="text" name="title" value="{{ expense.title }}" placeholder="Enter expense title" required
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
-        </div>
+    {% block content %}
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6">Edit Transaction</h2>
         
-        <div>
-            <label class="block text-gray-700">Amount</label>
-            <input type="number" name="amount" value="{{ expense.amount }}" step="0.01" placeholder="Enter amount" required
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
-        </div>
+        <!-- Add this line to provide the categories data to JavaScript -->
+        <script id="categories-data" type="application/json">{{ categories_json|safe }}</script>
         
-        <div>
-            <label class="block text-gray-700">Category</label>
-            <select name="category" required
+        <form method="POST" class="space-y-4" onsubmit="return confirm('Are you sure you want to update this transaction?');">
+            {% csrf_token %}
+            <div>
+                <label class="block text-gray-700">Title</label>
+                <input type="text" name="title" value="{{ expense.title }}" placeholder="Enter transaction title" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
-                {% for category in categories %}
-                    <option value="{{ category.id }}" {% if expense.category.id == category.id %}selected{% endif %}>
-                        {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div>
-            <label class="block text-gray-700">Date</label>
-            <input type="date" name="date" value="{{ expense.date|date:'Y-m-d' }}" required
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
-        </div>
-        
-        <div>
-            <label class="block text-gray-700">Description</label>
-            <textarea name="description" rows="3" placeholder="Enter description"
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">{{ expense.description }}</textarea>
-        </div>
-        
-        <div class="flex justify-end space-x-2">
-            <a href="{% url 'expenses:dashboard' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                Cancel
-            </a>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Update Expense
-            </button>
-        </div>
-    </form>
-</div>
-{% endblock %}
+            </div>
+            
+            <div>
+                <label class="block text-gray-700">Amount</label>
+                <input type="number" name="amount" value="{{ expense.amount }}" step="0.01" placeholder="Enter amount" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+            </div>
+            
+            <div>
+                <label class="block text-gray-700">Type</label>
+                <select name="type" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                    <option value="expense" {% if expense.type == 'expense' %}selected{% endif %}>Expense</option>
+                    <option value="income" {% if expense.type == 'income' %}selected{% endif %}>Income</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700">Category</label>
+                <select name="category" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                    <!-- Categories will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700">Date</label>
+                <input type="date" name="date" value="{{ expense.date|date:'Y-m-d' }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+            </div>
+            
+            <div>
+                <label class="block text-gray-700">Description</label>
+                <textarea name="description" rows="3" placeholder="Enter description"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">{{ expense.description }}</textarea>
+            </div>
+            
+            <div class="flex justify-between space-x-2">
+                <a href="{% url 'expenses:dashboard' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Update Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.querySelector('select[name="type"]');
+            const categorySelect = document.querySelector('select[name="category"]');
+            const currentCategoryId = {{ expense.category.id }};
+            
+            // Initialize categories based on current type selection
+            updateCategoriesBasedOnType();
+            
+            // Add event listener for type changes
+            typeSelect.addEventListener('change', updateCategoriesBasedOnType);
+            
+            function updateCategoriesBasedOnType() {
+                const transactionType = typeSelect.value;
+                
+                // Clear current options
+                categorySelect.innerHTML = '';
+                
+                // Get categories from data attributes
+                const allCategories = JSON.parse(document.getElementById('categories-data').textContent);
+                const filteredCategories = allCategories.filter(category => category.type === transactionType);
+                
+                // Add filtered options to select
+                filteredCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    if (category.id === currentCategoryId) {
+                        option.selected = true;
+                    }
+                    categorySelect.appendChild(option);
+                });
+                
+                // If no categories found with current type, show placeholder
+                if (filteredCategories.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "No categories available for this type";
+                    option.disabled = true;
+                    option.selected = true;
+                    categorySelect.appendChild(option);
+                }
+                // If no options with current category, select first one
+                else if (categorySelect.selectedIndex === -1 && categorySelect.options.length > 0) {
+                    categorySelect.selectedIndex = 0;
+                }
+            }
+        });
+    </script>
+    {% endblock %}

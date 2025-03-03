@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-xg2elesg51x9i%=c!)ms5@%i0t9k&9zu&ifa-#l2&@#lr6o!+l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -81,10 +81,19 @@ WSGI_APPLICATION = 'expensetracker.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'databasename'),
+        'USER': os.getenv('DB_USER', 'bibek'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'bibek'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
