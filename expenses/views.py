@@ -8,21 +8,17 @@ from .models import Expense, Category
 import json
 from datetime import timedelta
 from collections import defaultdict
-from decimal import Decimal
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import date   
 from django.contrib.auth.forms import UserCreationForm
 from .models import Expense, Profile
-from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 import requests
 from urllib.parse import urlencode
-from django.conf import settings
 
 
 def google_login(request):
@@ -69,6 +65,7 @@ def google_callback(request):
     email = user_info.get('email')
     first_name = user_info.get('given_name', '')
     last_name = user_info.get('family_name', '')
+    google_profile_picture = user_info.get('picture', '')  # Get the Google profile picture URL
 
     # Create or get the user
     user, created = User.objects.get_or_create(
@@ -76,9 +73,14 @@ def google_callback(request):
         defaults={'email': email, 'first_name': first_name, 'last_name': last_name}
     )
 
+    # Update or create the user's profile with the Google profile picture
+    profile, profile_created = Profile.objects.get_or_create(user=user)
+    profile.google_profile_picture = google_profile_picture
+    profile.save()
+
     # Log the user in with the specified backend
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return redirect('expenses:dashboard')  # Redirect to your home page
+    return redirect('expenses:dashboard')  # Redirect to your home page# Redirect to your home page
 
 @login_required
 def profile_view(request):

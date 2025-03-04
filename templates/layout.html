@@ -27,10 +27,12 @@
                     <a href="{% url 'expenses:profile' %}" class="group">
                         <div class="w-20 h-20 bg-gray-300 rounded-full mb-4 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-blue-300 transition">
                             {% if user.profile.photo %}
-                                <img src="{{ user.profile.photo.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <i class="fas fa-user text-3xl text-gray-600"></i>
-                            {% endif %}
+                <img src="{{ user.profile.photo.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+            {% elif user.profile.google_profile_picture %}
+                <img src="{{ user.profile.google_profile_picture }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+            {% else %}
+                <i class="fas fa-user text-3xl text-gray-600"></i>
+            {% endif %}
                         </div>
                     </a>
                     <!-- User Name with Link to Profile -->
