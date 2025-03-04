@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'expenses',
     'tailwind',
     'theme',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'django_browser_reload',
 ]
 TAILWIND_APP_NAME = 'theme'
@@ -51,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -140,8 +146,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# Add these settings at the bottom of the file
-# Add these settings at the bottom of the file
+
+AUTHENTICATION_BACKENDS = [
+    # Default Django auth backend
+    'django.contrib.auth.backends.ModelBackend',
+    # Add allauth backend
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+
+# Redirect URLs
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+
+# Google OAuth endpoints from the .env file
+GOOGLE_AUTH_URL = os.getenv('GOOGLE_AUTH_URL')
+GOOGLE_TOKEN_URL = os.getenv('GOOGLE_TOKEN_URL')
+GOOGLE_USER_INFO_URL = os.getenv('GOOGLE_USER_INFO_URL')

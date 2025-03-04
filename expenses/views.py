@@ -13,9 +13,72 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from datetime import date
+from datetime import date   
 from django.contrib.auth.forms import UserCreationForm
 from .models import Expense, Profile
+from django.shortcuts import redirect
+from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+import requests
+from urllib.parse import urlencode
+from django.conf import settings
+
+
+def google_login(request):
+    """Redirect users to Google's OAuth consent screen."""
+    params = {
+        'client_id': settings.GOOGLE_CLIENT_ID,
+        'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'access_type': 'offline',
+        'prompt': 'select_account',
+    }
+    auth_url = f"{settings.GOOGLE_AUTH_URL}?{urlencode(params)}"
+    return redirect(auth_url)
+
+def google_callback(request):
+    """Handle the callback from Google OAuth."""
+    code = request.GET.get('code')
+    if not code:
+        return redirect('login')  # Redirect to login if no code is provided
+
+    # Exchange the authorization code for an access token
+    token_data = {
+        'code': code,
+        'client_id': settings.GOOGLE_CLIENT_ID,
+        'client_secret': settings.GOOGLE_CLIENT_SECRET,
+        'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+        'grant_type': 'authorization_code',
+    }
+    response = requests.post(settings.GOOGLE_TOKEN_URL, data=token_data)
+    if response.status_code != 200:
+        return redirect('login')  # Handle error
+
+    access_token = response.json().get('access_token')
+
+    # Fetch user info using the access token
+    user_info_response = requests.get(settings.GOOGLE_USER_INFO_URL, headers={
+        'Authorization': f'Bearer {access_token}'
+    })
+    if user_info_response.status_code != 200:
+        return redirect('login')  # Handle error
+
+    user_info = user_info_response.json()
+    email = user_info.get('email')
+    first_name = user_info.get('given_name', '')
+    last_name = user_info.get('family_name', '')
+
+    # Create or get the user
+    user, created = User.objects.get_or_create(
+        username=email,
+        defaults={'email': email, 'first_name': first_name, 'last_name': last_name}
+    )
+
+    # Log the user in with the specified backend
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    return redirect('expenses:dashboard')  # Redirect to your home page
 
 @login_required
 def profile_view(request):

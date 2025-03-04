@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+
 app_name = 'expenses'
 
 urlpatterns = [
@@ -13,6 +14,8 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('profile/update/', views.profile_update, name='profile_update'),
     path('register/', views.register, name='register'),
+     
+    # path('direct-google-login/', views.google_login, name='direct_google_login')
 ]
 
 if settings.DEBUG:
