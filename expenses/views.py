@@ -91,10 +91,14 @@ def profile_view(request):
     total_expenses = sum(transaction.amount for transaction in expense_transactions)
     balance = total_income - total_expenses
     
+    # Get the user's profile
+    profile = request.user.profile
+    
     context = {
         'total_income': total_income,
         'total_expenses': total_expenses,
         'balance': balance,
+        'profile': profile, 
     }
     
     return render(request, 'expenses/profile.html', context)

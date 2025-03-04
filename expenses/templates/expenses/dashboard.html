@@ -380,7 +380,6 @@
         // Income vs Expenses Chart
         const income = {{ total_income|floatformat:2 }};
         const expenses = {{ total_expenses|floatformat:2 }};
-        
         const incomeExpensesCtx = document.getElementById('incomeExpensesHistogram').getContext('2d');
         
         new Chart(incomeExpensesCtx, {
