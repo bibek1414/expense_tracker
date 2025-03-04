@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">User Profile</h1>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Profile Header -->
+        <div class="bg-blue-700 text-white p-6">
+            <div class="flex items-center">
+                <div class="w-24 h-24 bg-gray-300 rounded-full overflow-hidden mr-6 border-4 border-white">
+                    {% if user.profile.photo %}
+                        <img src="{{ user.profile.photo.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-user text-4xl text-gray-600"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold">{{ user.get_full_name|default:user.username }}</h2>
+                    <p class="text-blue-200">Member since: {{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Details & Edit Form -->
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Personal Information</h3>
+                <button id="editToggle" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition">
+                    <i class="fas fa-edit mr-2"></i>Edit Profile
+                </button>
+            </div>
+            
+            <!-- View Mode -->
+            <div id="viewMode" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500">Full Name</h4>
+                        <p class="text-lg">{{ user.get_full_name|default:"Not set" }}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500">Username</h4>
+                        <p class="text-lg">{{ user.username }}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500">Email</h4>
+                        <p class="text-lg">{{ user.email|default:"Not set" }}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500">Phone</h4>
+                        <p class="text-lg">{{ user.profile.phone|default:"Not set" }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <h4 class="text-sm font-medium text-gray-500">Bio</h4>
+                        <p class="text-lg">{{ user.profile.bio|default:"No bio added yet."|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Mode -->
+            <form id="editMode" class="hidden space-y-4" method="post" enctype="multipart/form-data" action="{% url 'expenses:profile_update' %}">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" id="email" value="{{ user.email }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="text" name="phone" id="phone" value="{{ user.profile.phone|default:'' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+                        <textarea name="bio" id="bio" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ user.profile.bio|default:'' }}</textarea>
+                    </div>
+                    <div>
+                        <label for="photo" class="block text-sm font-medium text-gray-700">Profile Photo</label>
+                        <input type="file" name="photo" id="photo" accept="image/*" class="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancelEdit" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Financial Summary Section -->
+    <div class="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-semibold">Financial Summary</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-medium text-blue-700 mb-2">Current Balance</h4>
+                    <p class="text-2xl font-bold">${{ balance|floatformat:2 }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-medium text-green-700 mb-2">Total Income</h4>
+                    <p class="text-2xl font-bold">${{ total_income|default:"0.00" }}</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-medium text-red-700 mb-2">Total Expenses</h4>
+                    <p class="text-2xl font-bold">${{ total_expenses|default:"0.00" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle between view and edit modes
+    const editToggle = document.getElementById('editToggle');
+    const viewMode = document.getElementById('viewMode');
+    const editMode = document.getElementById('editMode');
+    const cancelEdit = document.getElementById('cancelEdit');
+    
+    editToggle.addEventListener('click', function() {
+        viewMode.classList.add('hidden');
+        editMode.classList.remove('hidden');
+    });
+    
+    cancelEdit.addEventListener('click', function() {
+        editMode.classList.add('hidden');
+        viewMode.classList.remove('hidden');
+    });
+</script>
+{% endblock %}

@@ -15,6 +15,53 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import date
 from django.contrib.auth.forms import UserCreationForm
+from .models import Expense, Profile
+
+@login_required
+def profile_view(request):
+    # Calculate financial summary
+    income_transactions = Expense.objects.filter(user=request.user, type='income')
+    expense_transactions = Expense.objects.filter(user=request.user, type='expense')
+    total_income = sum(transaction.amount for transaction in income_transactions)
+    total_expenses = sum(transaction.amount for transaction in expense_transactions)
+    balance = total_income - total_expenses
+    
+    context = {
+        'total_income': total_income,
+        'total_expenses': total_expenses,
+        'balance': balance,
+    }
+    
+    return render(request, 'expenses/profile.html', context)
+
+@login_required
+def profile_update(request):
+    if request.method == 'POST':
+        # Update User model fields
+        user = request.user
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        user.save()
+        
+        # Get or create the Profile instance
+        profile, created = Profile.objects.get_or_create(user=user)
+        
+        # Update Profile model fields
+        profile.phone = request.POST.get('phone', '')
+        profile.bio = request.POST.get('bio', '')
+        
+        # Handle profile photo upload
+        if 'photo' in request.FILES:
+            profile.photo = request.FILES['photo']
+        
+        profile.save()
+        
+        messages.success(request, 'Your profile has been updated successfully!')
+        return redirect('expenses:profile')
+        
+    # If not POST, redirect to profile page
+    return redirect('expenses:profile')
 
 @login_required
 def transactions(request):
@@ -34,7 +81,7 @@ def transactions(request):
         'expenses': page_obj,
         'is_paginated': is_paginated,
         'page_obj': page_obj,
-        'balance': balance,  # Pass balance to the template
+        'balance': balance, 
     }
     return render(request, 'expenses/transactions.html', context)
 @login_required

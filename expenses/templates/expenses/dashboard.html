@@ -1,54 +1,66 @@
 {% extends 'layout.html' %}
 {% load static %}
-{% block title %}Dashboard - Expense Tracker{% endblock %}
+{% block title %}Dashboard - Expense Tracker Pro{% endblock %}
 
 {% block content %}
-<!-- Start of User Profile and Balance Section -->
-<div class="container mx-auto px-4 py-6">
-    <!-- User Profile and Balance Section -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-semibold text-gray-700">Dashboard</h1>
-            <p class="text-gray-500">{{ current_date|date:"F j, Y" }}</p>
+<!-- Main Dashboard Container -->
+<div class="container mx-auto px-6 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
+        <div class="mb-4 md:mb-0">
+            <h1 class="text-3xl font-bold text-gray-800">Financial Dashboard</h1>
+            <p class="text-gray-500 mt-1">{{ current_date|date:"F j, Y" }}</p>
         </div>
-        <div>
-            <form method="get" action="{% url 'expenses:dashboard' %}" class="flex items-center space-x-2">
-                <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
-                <span class="text-gray-500">to</span>
-                <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Filter</button>
+        
+        <!-- Date Range Filter -->
+        <div class="bg-white rounded-xl shadow-sm p-3">
+            <form method="get" action="{% url 'expenses:dashboard' %}" class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                <div class="flex items-center space-x-2">
+                    <input type="date" name="start_date" value="{{ request.GET.start_date }}" 
+                           class="px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <span class="text-gray-500">to</span>
+                    <input type="date" name="end_date" value="{{ request.GET.end_date }}" 
+                           class="px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                    <i class="fas fa-filter mr-1"></i> Filter
+                </button>
             </form>
         </div>
     </div>
-    <!-- End of User Profile and Balance Section -->
 
-    <!-- Start of Time Period Selector -->
-    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <!-- Time Period Selector -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex flex-wrap gap-2">
-            <a href="{% url 'expenses:dashboard' %}?period=daily" class="px-4 py-2 rounded-md {% if period == 'daily' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
-                <i class="fas fa-calendar-day mr-1"></i> Daily
+            <a href="{% url 'expenses:dashboard' %}?period=daily" 
+               class="px-4 py-2 rounded-lg transition-colors {% if period == 'daily' %}bg-indigo-600 text-white shadow-md{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                <i class="fas fa-calendar-day mr-2"></i> Daily
             </a>
-            <a href="{% url 'expenses:dashboard' %}?period=weekly" class="px-4 py-2 rounded-md {% if period == 'weekly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
-                <i class="fas fa-calendar-week mr-1"></i> Weekly
+            <a href="{% url 'expenses:dashboard' %}?period=weekly" 
+               class="px-4 py-2 rounded-lg transition-colors {% if period == 'weekly' %}bg-indigo-600 text-white shadow-md{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                <i class="fas fa-calendar-week mr-2"></i> Weekly
             </a>
-            <a href="{% url 'expenses:dashboard' %}?period=monthly" class="px-4 py-2 rounded-md {% if period == 'monthly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
-                <i class="fas fa-calendar-alt mr-1"></i> Monthly
+            <a href="{% url 'expenses:dashboard' %}?period=monthly" 
+               class="px-4 py-2 rounded-lg transition-colors {% if period == 'monthly' %}bg-indigo-600 text-white shadow-md{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                <i class="fas fa-calendar-alt mr-2"></i> Monthly
             </a>
-            <a href="{% url 'expenses:dashboard' %}?period=yearly" class="px-4 py-2 rounded-md {% if period == 'yearly' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
-                <i class="fas fa-calendar mr-1"></i> Yearly
+            <a href="{% url 'expenses:dashboard' %}?period=yearly" 
+               class="px-4 py-2 rounded-lg transition-colors {% if period == 'yearly' %}bg-indigo-600 text-white shadow-md{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                <i class="fas fa-calendar mr-2"></i> Yearly
             </a>
-            <a href="{% url 'expenses:dashboard' %}?period=all" class="px-4 py-2 rounded-md {% if period == 'all' %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
-                <i class="fas fa-infinity mr-1"></i> All Time
+            <a href="{% url 'expenses:dashboard' %}?period=all" 
+               class="px-4 py-2 rounded-lg transition-colors {% if period == 'all' %}bg-indigo-600 text-white shadow-md{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                <i class="fas fa-infinity mr-2"></i> All Time
             </a>
         </div>
-        <!-- End of Time Period Selector -->
-
-        <!-- Date Controls -->
-        <div class="mt-4 flex items-center justify-between">
-            <a href="?period={{ period }}&date={{ prev_date|date:'Y-m-d' }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-                <i class="fas fa-chevron-left"></i> Previous
+        
+        <!-- Date Navigation -->
+        <div class="mt-6 flex items-center justify-between">
+            <a href="?period={{ period }}&date={{ prev_date|date:'Y-m-d' }}" 
+               class="flex items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-700">
+                <i class="fas fa-chevron-left mr-2"></i> Previous
             </a>
-            <h2 class="text-lg font-bold text-blue-700">
+            <h2 class="text-xl font-bold text-indigo-700">
                 {% if period == 'daily' %}
                     {{ current_date|date:"F j, Y" }}
                 {% elif period == 'weekly' %}
@@ -61,124 +73,117 @@
                     All Time Expenses
                 {% endif %}
             </h2>
-            <a href="?period={{ period }}&date={{ next_date|date:'Y-m-d' }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 {% if period == 'all' or next_date > today %}opacity-50 pointer-events-none{% endif %}">
-                Next <i class="fas fa-chevron-right"></i>
+            <a href="?period={{ period }}&date={{ next_date|date:'Y-m-d' }}" 
+               class="flex items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-gray-700 {% if period == 'all' or next_date > today %}opacity-50 pointer-events-none{% endif %}">
+                Next <i class="fas fa-chevron-right ml-2"></i>
             </a>
         </div>
     </div>
-    <!-- End of Date Controls -->
 
- <!-- Start of Summary Cards -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <!-- Income Card -->
-    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
-        <div class="flex justify-between items-center">
-            <h3 class="text-gray-500 font-medium">Income</h3>
-            <span class="p-2 bg-green-100 rounded-full text-green-700">
-                <i class="fas fa-arrow-up"></i>
-            </span>
-        </div>
-        <p class="text-2xl font-bold mt-2 text-green-600">${{ total_income|floatformat:2 }}</p>
-    </div>
-
-    <!-- Expenses Card -->
-    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500">
-        <div class="flex justify-between items-center">
-            <h3 class="text-gray-500 font-medium">Expenses</h3>
-            <span class="p-2 bg-red-100 rounded-full text-red-700">
-                <i class="fas fa-arrow-down"></i>
-            </span>
-        </div>
-        <p class="text-2xl font-bold mt-2 text-red-600">${{ total_expenses|floatformat:2 }}</p>
-        {% if prev_total_expenses %}
-            <div class="mt-2 text-sm {% if total_expenses > prev_total_expenses %}text-red-500{% else %}text-green-500{% endif %}">
-                {% if total_expenses > prev_total_expenses %}
-                    <i class="fas fa-arrow-up"></i> {{ percent_change_expenses|floatformat:1 }}% from previous period
-                {% elif total_expenses < prev_total_expenses %}
-                    <i class="fas fa-arrow-down"></i> {{ percent_change_expenses|floatformat:1 }}% from previous period
-                {% else %}
-                    <i class="fas fa-equals"></i> No change from previous period
-                {% endif %}
+    <!-- Summary Cards Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Income Card -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl shadow-sm p-6 border-l-4 border-emerald-500 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 opacity-10">
+                <i class="fas fa-arrow-up text-8xl text-emerald-700"></i>
             </div>
-        {% endif %}
-    </div>
-
-    <!-- Balance Card -->
-    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500">
-        <div class="flex justify-between items-center">
-            <h3 class="text-gray-500 font-medium">Balance</h3>
-            <span class="p-2 bg-purple-100 rounded-full text-purple-700">
-                <i class="fas fa-wallet"></i>
-            </span>
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-600 font-medium">Total Income</h3>
+                <span class="p-2 bg-emerald-200 rounded-full text-emerald-700">
+                    <i class="fas fa-arrow-up"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-emerald-600">${{ total_income|floatformat:2 }}</p>
+            <p class="text-emerald-600 text-sm mt-2">Current Period</p>
         </div>
-        <p class="text-2xl font-bold mt-2 text-purple-600">${{ balance|floatformat:2 }}</p>
-    </div>
 
-    <!-- Transactions Card -->
-    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-amber-500">
-        <div class="flex justify-between items-center">
-            <h3 class="text-gray-500 font-medium">Transactions</h3>
-            <span class="p-2 bg-amber-100 rounded-full text-amber-700">
-                <i class="fas fa-exchange-alt"></i>
-            </span>
+        <!-- Expenses Card -->
+        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-sm p-6 border-l-4 border-red-500 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 opacity-10">
+                <i class="fas fa-arrow-down text-8xl text-red-700"></i>
+            </div>
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-600 font-medium">Total Expenses</h3>
+                <span class="p-2 bg-red-200 rounded-full text-red-700">
+                    <i class="fas fa-arrow-down"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-red-600">${{ total_expenses|floatformat:2 }}</p>
+            {% if prev_total_expenses %}
+                <div class="mt-2 text-sm {% if total_expenses > prev_total_expenses %}text-red-600{% else %}text-emerald-600{% endif %}">
+                    {% if total_expenses > prev_total_expenses %}
+                        <i class="fas fa-arrow-up mr-1"></i> {{ percent_change_expenses|floatformat:1 }}% from previous
+                    {% elif total_expenses < prev_total_expenses %}
+                        <i class="fas fa-arrow-down mr-1"></i> {{ percent_change_expenses|floatformat:1 }}% from previous
+                    {% else %}
+                        <i class="fas fa-equals mr-1"></i> No change
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
-        <p class="text-2xl font-bold mt-2 text-amber-600">{{ transaction_count }}</p>
+
+        <!-- Balance Card -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl shadow-sm p-6 border-l-4 border-indigo-500 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 opacity-10">
+                <i class="fas fa-wallet text-8xl text-indigo-700"></i>
+            </div>
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-600 font-medium">Net Balance</h3>
+                <span class="p-2 bg-indigo-200 rounded-full text-indigo-700">
+                    <i class="fas fa-wallet"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-indigo-600">${{ balance|floatformat:2 }}</p>
+            <p class="text-indigo-600 text-sm mt-2">Savings</p>
+        </div>
+
+        <!-- Transactions Card -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-sm p-6 border-l-4 border-amber-500 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 opacity-10">
+                <i class="fas fa-exchange-alt text-8xl text-amber-700"></i>
+            </div>
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-600 font-medium">Transactions</h3>
+                <span class="p-2 bg-amber-200 rounded-full text-amber-700">
+                    <i class="fas fa-exchange-alt"></i>
+                </span>
+            </div>
+            <p class="text-3xl font-bold text-amber-600">{{ transaction_count }}</p>
+            <p class="text-amber-600 text-sm mt-2">This Period</p>
+        </div>
     </div>
-</div>
-<!-- End of Summary Cards -->
 
-
-    <!-- Start of Charts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Expenses by Category Chart -->
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">Expenses by Category</h2>
-            <canvas id="categoryChart" height="240"></canvas>
+        <div class="bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-pie text-indigo-500 mr-2"></i> Expenses by Category
+            </h2>
+            <div class="h-64">
+                <canvas id="categoryChart"></canvas>
+            </div>
         </div>
 
         <!-- Income vs Expenses Bar Chart -->
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">Income vs Expenses</h2>
-            <canvas id="incomeExpensesHistogram" height="240"></canvas>
+        <div class="bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Income vs Expenses
+            </h2>
+            <div class="h-64">
+                <canvas id="incomeExpensesHistogram"></canvas>
+            </div>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const ctx = document.getElementById("incomeExpensesHistogram").getContext("2d");
     
-            const income = {{ total_income|floatformat:2 }};
-            const expenses = {{ total_expenses|floatformat:2 }};
-    
-            new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: ["Income", "Expenses"],
-                    datasets: [{
-                        label: "Amount",
-                        data: [income, expenses],
-                        backgroundColor: ["#4CAF50", "#F44336"], // Green for income, Red for expenses
-                        borderColor: ["#388E3C", "#D32F2F"],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        });
-    </script>
-        
-    <!-- Start of Recent Transactions -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-            <h2 class="text-lg font-bold text-blue-700">Recent Transactions</h2>
-            <a href="{% url 'expenses:add_expense' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center">
-                <i class="fas fa-plus mr-1"></i> Add New
+    <!-- Recent Transactions Section -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 bg-indigo-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 class="text-xl font-bold text-indigo-700 flex items-center">
+                <i class="fas fa-history text-indigo-500 mr-2"></i> Recent Transactions
+            </h2>
+            <a href="{% url 'expenses:add_expense' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center shadow-sm">
+                <i class="fas fa-plus mr-2"></i> Add Transaction
             </a>
         </div>
         
@@ -188,7 +193,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
@@ -197,35 +202,45 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for transaction in transactions|slice:":5" %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ transaction.date|date:"M d, Y" }}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-medium text-gray-700">{{ transaction.date|date:"M d, Y" }}</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                                {{ transaction.title }}
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">{{ transaction.title }}</div>
                                 {% if transaction.description %}
-                                <p class="text-xs text-gray-500">{{ transaction.description }}</p>
+                                <div class="text-xs text-gray-500 mt-1">{{ transaction.description }}</div>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full" style="background-color: {{ transaction.category.color }}20; color: {{ transaction.category.color }}">
-                                    {{ transaction.category.name }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-3 py-1 text-xs font-medium rounded-full" 
+                                      style="background-color: {{ transaction.category.color }}20; color: {{ transaction.category.color }}">
+                                    <i class="fas fa-tag mr-1"></i> {{ transaction.category.name }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                    {% if transaction.type == 'income' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                                    {{ transaction.get_type_display }}
-                                </span>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if transaction.type == 'income' %}
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
+                                        <i class="fas fa-arrow-up mr-1"></i> Income
+                                    </span>
+                                {% else %}
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
+                                        <i class="fas fa-arrow-down mr-1"></i> Expense
+                                    </span>
+                                {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                ${{ transaction.amount|floatformat:2 }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-medium {% if transaction.type == 'income' %}text-emerald-600{% else %}text-red-600{% endif %}">
+                                    ${{ transaction.amount|floatformat:2 }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{% url 'expenses:edit_expense' transaction.id %}" class="text-blue-600 hover:text-blue-800 mr-3">
+                                <a href="{% url 'expenses:edit_expense' transaction.id %}" 
+                                   class="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 p-2 rounded-lg mr-1 transition-colors">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" onclick="confirmDelete({{ transaction.id }})" class="text-red-600 hover:text-red-800">
+                                <button type="button" onclick="confirmDelete({{ transaction.id }})" 
+                                        class="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 p-2 rounded-lg transition-colors">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>
@@ -234,14 +249,22 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- View All Transactions Link -->
+            <div class="px-6 py-3 bg-gray-50 text-right">
+                <a href="{% url 'expenses:transactions' %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                    View all transactions <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
         {% else %}
-            <div class="p-8 text-center">
-                <div class="inline-block p-4 rounded-full bg-gray-100 text-gray-400 mb-4">
-                    <i class="fas fa-receipt text-4xl"></i>
+            <div class="p-12 text-center">
+                <div class="inline-block p-6 rounded-full bg-indigo-100 text-indigo-500 mb-4">
+                    <i class="fas fa-receipt text-5xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-1">No transactions found</h3>
-                <p class="text-gray-500 mb-4">There are no transactions recorded for this time period.</p>
-                <a href="{% url 'expenses:add_expense' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No transactions found</h3>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">There are no transactions recorded for this time period. Start tracking your finances by adding your first transaction.</p>
+                <a href="{% url 'expenses:add_expense' %}" 
+                   class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
                     <i class="fas fa-plus mr-2"></i> Add your first transaction
                 </a>
             </div>
@@ -250,84 +273,35 @@
 </div>
 
 <!-- Floating Action Button (FAB) -->
-<div class="fixed bottom-8 right-8">
-    <a href="{% url 'expenses:add_expense' %}" class="p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-transform duration-200 hover:scale-110">
+<div class="fixed bottom-8 right-8 z-10">
+    <a href="{% url 'expenses:add_expense' %}" 
+       class="flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <i class="fas fa-plus text-2xl"></i>
     </a>
 </div>
 
-<!-- Charts JavaScript -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Function to get random color - add this in case it's not defined elsewhere
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-        
-        // Category Chart
-        const categoryChartData = {{ category_chart_data|safe }};
-        const categoryLabels = categoryChartData.map(cat => cat.name);
-        const categoryValues = categoryChartData.map(cat => cat.value);
-        const categoryColors = categoryChartData.map(cat => cat.color || getRandomColor());
-
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-       
-        new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: categoryLabels,
-                datasets: [{
-                    data: categoryValues,
-                    backgroundColor: categoryColors,
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true,
-                aspectRatio: 1.5,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 10,
-                            padding: 10,
-                        }
-                    }
-                },
-                
-            }
-
-        });
-    });
-
-
-
-</script>
-
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 transform transition-all">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Confirm Deletion</h3>
         <form id="deleteForm" method="post">
             {% csrf_token %}
-            <p class="mb-4">Are you sure you want to delete this expense?</p>
-            <div class="flex justify-end">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-2">
+            <p class="text-gray-700 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                     Cancel
                 </button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                    Delete
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-trash-alt mr-1"></i> Delete
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- Scripts -->
 <script>
     // Function to handle delete confirmation
     function confirmDelete(expenseId) {
@@ -340,5 +314,137 @@
     function closeModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
+
+    // Keyboard listener for ESC key to close modal
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !document.getElementById('deleteModal').classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // Charts JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category Chart
+        const categoryChartData = {{ category_chart_data|safe }};
+        const categoryLabels = categoryChartData.map(cat => cat.name);
+        const categoryValues = categoryChartData.map(cat => cat.value);
+        const categoryColors = categoryChartData.map(cat => cat.color || getRandomColor());
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: categoryColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: $${value.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+        // Income vs Expenses Chart
+        const income = {{ total_income|floatformat:2 }};
+        const expenses = {{ total_expenses|floatformat:2 }};
+        
+        const incomeExpensesCtx = document.getElementById('incomeExpensesHistogram').getContext('2d');
+        
+        new Chart(incomeExpensesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expenses'],
+                datasets: [{
+                    label: 'Amount ($)',
+                    data: [income, expenses],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderColor: ['#059669', '#dc2626'],
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    barThickness: 50,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `$${context.raw.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1500
+                }
+            }
+        });
+    });
+
+    // Function to get random color
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
 </script>
-{% endblock %}
+{% endblock %}  
